@@ -29,7 +29,7 @@ app.engine('ejs', ejsMate)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
 
@@ -43,6 +43,7 @@ const validateCampground = (req, res, next) => {
         next();
     }
 }
+
 const validateReview = (req, res, next) => {
     const { error } = reviewSchema.validate(req.body);
     if (error) {
@@ -59,7 +60,7 @@ app.get('/', (req, res) => {
 
 app.get('/campgrounds', AsyncErrorHandler(async (req, res) => {
     const campgrounds = await Campground.find({})
-    res.render('campgrounds/index', {campgrounds})
+    res.render('campgrounds/index', { campgrounds })
 }))
 
 app.get('/campgrounds/new', (req, res) => {
@@ -72,25 +73,25 @@ app.post('/campgrounds', validateCampground, AsyncErrorHandler(async (req, res) 
     res.redirect(`/campgrounds/${campground._id}`)
 }))
 
-app.get('/campgrounds/:id',  AsyncErrorHandler(async (req, res) => {
+app.get('/campgrounds/:id', AsyncErrorHandler(async (req, res) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');
     res.render('campgrounds/show', { campground });
 }))
 
-app.get('/campgrounds/:id/edit',  AsyncErrorHandler(async (req, res) => {
+app.get('/campgrounds/:id/edit', AsyncErrorHandler(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
-    res.render('campgrounds/update', {campground})
+    res.render('campgrounds/update', { campground })
 
 }))
 
 app.put('/campgrounds/:id', validateCampground, AsyncErrorHandler(async (req, res) => {
-    const {id} = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, {...req.body.campground})
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground })
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 
-app.delete('/campgrounds/:id',  AsyncErrorHandler(async (req, res) => {
-    const {id} = req.params;
+app.delete('/campgrounds/:id', AsyncErrorHandler(async (req, res) => {
+    const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds')
 }))
@@ -105,16 +106,21 @@ app.post('/campgrounds/:id/reviews', validateReview, AsyncErrorHandler(async (re
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
+app.delete('/campgrounds/:id/reviews/:reviewId', AsyncErrorHandler(async (req, res) => {
+    const { id, reviewId } = req.params;
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
+    await Campground.findByIdAndDelete(reviewId);
+    res.redirect(`/campgrounds/${id}`)
+}));
 
-
-app.all('*', (req,res,next) => {
+app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
 })
 
-app.use((err,req,res,next) => {
-    const {statusCode = 500} = err;
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
     if (!err.message) err.message = 'Sorry! Something Went Wrong!'
-    res.status(statusCode).render('error', {err})
+    res.status(statusCode).render('error', { err })
 })
 
 app.listen(3000, () => {
