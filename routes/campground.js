@@ -5,7 +5,7 @@ const AsyncErrorHandler = require('../utils/AsyncErrorHandler');
 const Campground = require('../models/campground');
 const Review = require('../models/review');
 const { campgroundSchema } = require('../schemas.js');
-
+const isLoggedIn = require('../middleware')
 
 
 const validateCampground = (req, res, next) => {
@@ -24,16 +24,16 @@ router.get('/', AsyncErrorHandler(async (req, res) => {
     res.render('campgrounds/index', { campgrounds })
 }))
 
-router.get('/new', (req, res) => {
+router.get('/new', isLoggedIn, (req, res) => {
     res.render('campgrounds/new')
 })
 
-router.post('/', validateCampground, AsyncErrorHandler(async (req, res) => {
+router.post('/', isLoggedIn, validateCampground, AsyncErrorHandler(async (req, res) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
     req.flash('success', 'Successfully added campground!')
     res.redirect(`/campgrounds/${campground._id}`)
-}))
+})) 
 
 router.get('/:id', AsyncErrorHandler(async (req, res) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');

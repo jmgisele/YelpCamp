@@ -7,6 +7,13 @@ const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+
+//models
+const User = require('./models/user')
+
+
 //errors
 const ExpressError = require('./utils/ExpressError');
 const AsyncErrorHandler = require('./utils/AsyncErrorHandler');
@@ -14,7 +21,7 @@ const AsyncErrorHandler = require('./utils/AsyncErrorHandler');
 //routing
 const campgrounds = require('./routes/campground');
 const reviews = require('./routes/review');
-
+const users = require('./routes/user')
 //Mongo
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -26,8 +33,6 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", () => {
     console.log("Database connected");
 });
-
-
 
 //config
 app.engine('ejs', ejsMate);
@@ -50,18 +55,38 @@ const sessionConfig = {
     }
 };
 app.use(session(sessionConfig));
-app.use(flash());
 
+//passport
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//flash
+app.use(flash());
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
 })
 
+//auth
+app.use((req,res,next) => {
+    if (!['/login', '/'].includes(req.originalUrl)) {
+        req.session.returnTo = req.originalUrl
+    }
+    res.locals.currentUser = req.user;
+    next();
+})
+
 //routing
+app.use('/', users)
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
 
+//routes
 app.get('/', (req, res) => {
     res.render('home')
 });
@@ -70,6 +95,7 @@ app.all('*', (req, res, next) => {
     next(new ExpressError('Page Not Found', 404))
 });
 
+//errors
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err;
     if (!err.message) err.message = 'Sorry! Something Went Wrong!'
