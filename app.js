@@ -1,3 +1,8 @@
+//env
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
 //modules
 const express = require('express');
 const app = express();
@@ -16,7 +21,6 @@ const User = require('./models/user')
 
 //errors
 const ExpressError = require('./utils/ExpressError');
-const AsyncErrorHandler = require('./utils/AsyncErrorHandler');
 
 //routing
 const campgrounds = require('./routes/campground');
@@ -74,7 +78,7 @@ app.use((req, res, next) => {
 
 //auth
 app.use((req,res,next) => {
-    if (!['/login', '/'].includes(req.originalUrl)) {
+    if (!['/login', '/', '/register', '/logout'].includes(req.originalUrl)) {
         req.session.returnTo = req.originalUrl
     }
     res.locals.currentUser = req.user;
