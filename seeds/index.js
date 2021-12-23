@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
 const mongoose = require('mongoose');
 const Campground = require('../models/campground')
 const cities = require('./cities')
@@ -18,7 +22,7 @@ const sample = ((arr) => arr[Math.floor(Math.random() * arr.length)]);
 
 const seedDB = async () => {
     await Campground.deleteMany({});
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 500; i++) {
         const random1000 = Math.floor(Math.random() * 1000);
         const price = Math.floor(Math.random() * 20) + 10;
         const camp = new Campground({
@@ -26,11 +30,14 @@ const seedDB = async () => {
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
             images: [
-                {
-                    "url": "https://res.cloudinary.com/dugpy1adl/image/upload/v1640134065/YelpCamp/uo3ahcxmwyeichcndgli.jpg",
-                    "filename": "YelpCamp/uo3ahcxmwyeichcndgli"
-                }
             ],
+            geometry: {
+                type: "Point",
+                coordinates: [
+                    cities[random1000].longitude,
+                    cities[random1000].latitude,
+                ]
+            },
             description: `Lorem ipsum dolor sit, amet consectetur adipisicing elit. Omnis deleniti facilis repellendus? Sapiente maiores rem saepe tempora eos dicta consequatur minima vitae. Dolor tempora alias facilis sed labore iure tenetur.`,
             price
         })
