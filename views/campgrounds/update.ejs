@@ -12,9 +12,10 @@
                                 value="<%=campground.title%>" required aria-required="true">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="location">Location</label>
+                            <label class="form-label" for="location" id="loc-label">Location</label>
                             <input class="form-control" type="text" id="location" name="campground[location]"
                                 value="<%=campground.location%>" required aria-required="true">
+                            <div class="file-error" id="loc-err-msg"></div>
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Campground Price</label>
@@ -33,11 +34,12 @@
                         <div class="mb-3">
                             <div class="form-file custom-file">
                                 <input type="file" class="form-file-input" id="image" name="image" multiple>
-                                <label class="form-file-label" for="image">
+                                <label class="form-file-label" for="image" id="img-file-label">
                                     <span class="form-file-text custom-file-label">Add more image(s)...</span>
                                     <span class="form-file-button">Browse</span>
                                 </label>
                             </div>
+                            <div class="file-error" id="img-err-msg"></div>
                         </div>
                         <div class="mb-3">
                             <% campground.images.forEach (function(img, i) {%>
@@ -50,7 +52,7 @@
                                 <% }) %>
                         </div>
                         <div class="mb-3">
-                            <button class="btn btn-info"> Update Campground</button>
+                            <button class="btn btn-info" id="submit"> Update Campground</button>
                         </div>
                     </form>
                     <a href="/campgrounds/<%= campground._id %>">Back To Campground</a>
@@ -58,3 +60,5 @@
             </div>
         </div>
     </div>
+
+<script src='/javascripts/clientSideValidation.js'></script>

@@ -2,8 +2,11 @@
     <div class="row">
         <div class="col-6 offset-3">
             <div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading"><%= err.message %> - <%= err.statusCode %></h4>
-                <p class="text-wrap text-break"><%= err.stack %></p>
+                <h3 class="alert-heading mb-2">Whoops! Looks like something went wrong. Maybe try again?</h3>
+                <h5 class="alert-heading mb-3"><%= err.message %> <%= err.statusCode %></h5>
+                <% if (process.env.NODE_ENV !== 'production') { %>
+                    <p class="text-wrap text-break"><%= err.stack %></p>
+                <% } %>
             </div>
         </div>
     </div>
