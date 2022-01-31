@@ -8,7 +8,7 @@
     "start": "node app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "James Gisele (based on Colt Steele's WDB Udemy course capstone project)",
   "license": "ISC",
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.13.2",
